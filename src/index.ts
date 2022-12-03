@@ -1,4 +1,7 @@
 import express from 'express'
+import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+
+
 import { body, validationResult } from 'express-validator';
 import cors from 'cors'
 import {PrismaClient, User} from "@prisma/client";
@@ -8,6 +11,7 @@ const prisma  = new PrismaClient()
 import jwt from 'jsonwebtoken'
 import passport, {session, use} from 'passport'
 import {Strategy as JwtStrategy, ExtractJwt, StrategyOptions} from 'passport-jwt'
+dotenv.config()
 var opts = {}as StrategyOptions
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken()
 opts.secretOrKey = 'proot'
