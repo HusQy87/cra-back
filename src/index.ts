@@ -102,6 +102,6 @@ app.get('/user/infos', passport.authenticate('jwt', {session: false}), async  (r
     return res.send(user)
 })
 
-app.listen(80, () => {
+app.listen(process.env.PORT, () => {
     console.log("Silence ça tourne")
 })
