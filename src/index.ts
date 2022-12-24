@@ -11,6 +11,7 @@ const prisma  = new PrismaClient()
 import jwt from 'jsonwebtoken'
 import passport, {session, use} from 'passport'
 import {Strategy as JwtStrategy, ExtractJwt, StrategyOptions} from 'passport-jwt'
+import * as console from "console";
 dotenv.config()
 var opts = {}as StrategyOptions
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken()
@@ -39,10 +40,15 @@ app.post('/login', async (req, res) => {
     const user = await prisma.user.findFirst({where: {mail: req.body.mail}})
     if (user){
         if (await bcrypt.compare(req.body.mdp, user.mdp)){
+            console.log("login success")
             res.send({token: jwt.sign({mail: user.mail, id: user.id}, 'proot')})
+        }else {
+            res.send({status:false})
+
         }
+    }else {
+        res.send({status:false})
     }
-    res.status(404)
 })
 app.post('/register',
     body('mail').notEmpty().isEmail(),
@@ -91,7 +97,18 @@ app.post('/profile', passport.authenticate('jwt', {session: false}), async (req,
     }
 })
 
+app.put('/user/changepass', passport.authenticate('jwt', {session: false}), async (req, res)=> {
+    console.log('changement de mot de passe')
+    const user = await req.user as User
+    const resp = await prisma.user.update({
+        where:{id: user.id},
+        data: {
+            mdp: await bcrypt.hash(req.body.newPass, 10)
+        }
+    })
 
+    res.send({status: true})
+})
 app.get('/user/infos', passport.authenticate('jwt', {session: false}), async  (req, res)=> {
     const userTmp = req.user as User
     const user = await prisma.user.findUnique({
